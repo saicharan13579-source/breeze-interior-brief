@@ -341,6 +341,27 @@ footer{padding:40px 0;color:var(--muted);font-size:13px;border-top:1px solid var
 .cbtn{display:inline-flex;align-items:center;gap:8px;padding:13px 22px;border-radius:999px;font-weight:600;font-size:15px;text-decoration:none;border:1px solid rgba(255,255,255,.6);color:#fff;background:rgba(255,255,255,.08);backdrop-filter:blur(6px);cursor:pointer}
 .cbtn.pri{background:#F2F5F3;color:var(--ink);border-color:#F2F5F3}
 .cbtn:hover{transform:translateY(-1px)}
+.lscroll{position:relative;height:260vh}
+.lscroll .lhero{position:sticky;top:64px;height:calc(100vh - 64px);max-height:none}
+.lhero .layer{position:absolute;inset:-4% 0;will-change:transform}
+.lhero .layer img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;object-position:center 78%;transition:none}
+.lhero .layer img.night{opacity:0}
+.lhero .glow{position:absolute;inset:0;background:radial-gradient(60% 35% at 50% 72%,rgba(255,196,120,.28),rgba(255,196,120,0) 70%);opacity:0;mix-blend-mode:screen;pointer-events:none}
+.lhero .stars{position:absolute;inset:0 0 55% 0;opacity:0;pointer-events:none;background-image:radial-gradient(1.2px 1.2px at 12% 18%,#fff 60%,transparent),radial-gradient(1px 1px at 28% 8%,#fff 60%,transparent),radial-gradient(1.4px 1.4px at 44% 22%,#fff 60%,transparent),radial-gradient(1px 1px at 63% 12%,#fff 60%,transparent),radial-gradient(1.3px 1.3px at 78% 26%,#fff 60%,transparent),radial-gradient(1px 1px at 90% 9%,#fff 60%,transparent),radial-gradient(1px 1px at 6% 34%,#fff 60%,transparent),radial-gradient(1.2px 1.2px at 52% 4%,#fff 60%,transparent),radial-gradient(1px 1px at 35% 36%,#fff 60%,transparent),radial-gradient(1.1px 1.1px at 70% 40%,#fff 60%,transparent)}
+.lhero .eve{position:absolute;left:50%;bottom:13vh;width:min(820px,92%);margin-left:max(-410px,-46%);text-align:center;opacity:0;transform:translateY(30px);pointer-events:none;padding:28px 24px;border-radius:24px;background:radial-gradient(closest-side,rgba(10,20,26,.62),rgba(10,20,26,0))}
+.lhero .eve h2{color:#fff;font-size:clamp(34px,4.6vw,68px);text-shadow:0 2px 30px rgba(0,0,0,.5)}
+.lhero .eve h2 em{color:var(--gold);font-style:italic}
+.lhero .eve p{margin:12px auto 0;color:#E6EEEA;font-size:18px;max-width:560px}
+.tclock{position:absolute;left:32px;bottom:28px;z-index:3;display:flex;align-items:center;gap:10px;background:rgba(15,28,23,.45);backdrop-filter:blur(8px);border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:7px 16px 7px 8px;color:#fff;font-size:14px;font-weight:600;font-variant-numeric:tabular-nums}
+.tclock .orb{width:24px;height:24px;border-radius:50%;background:#FFD27A;box-shadow:0 0 12px #FFD27A;position:relative;overflow:hidden}
+.tclock .orb i{position:absolute;inset:0;border-radius:50%;background:#1C2B28;transform:translateX(100%)}
+.shint{position:absolute;left:50%;bottom:28px;transform:translateX(-50%);color:#fff;font-size:12px;letter-spacing:2px;text-transform:uppercase;display:flex;flex-direction:column;align-items:center;gap:6px;opacity:.9;pointer-events:none}
+.shint i{width:2px;height:28px;background:linear-gradient(#fff,transparent);animation:sh 1.6s ease-in-out infinite}
+@keyframes sh{0%{transform:scaleY(0);transform-origin:top}50%{transform:scaleY(1);transform-origin:top}51%{transform-origin:bottom}100%{transform:scaleY(0);transform-origin:bottom}}
+.rv{opacity:0;transform:translateY(36px);transition:opacity .9s cubic-bezier(.2,.7,.2,1),transform .9s cubic-bezier(.2,.7,.2,1)}
+.rv.in{opacity:1;transform:none}
+@media (prefers-reduced-motion:reduce){.lscroll{height:auto}.lscroll .lhero{position:relative}.rv{opacity:1;transform:none;transition:none}.shint i{animation:none}}
+@media (max-width:620px){.lscroll{height:200vh}.tclock{left:16px;bottom:16px}.shint{display:none}}
 .dn{position:absolute;right:32px;bottom:28px;z-index:3;display:flex;background:rgba(15,28,23,.45);backdrop-filter:blur(8px);border-radius:999px;padding:4px;border:1px solid rgba(255,255,255,.25)}
 .dn button{border:none;background:none;color:#E6EEEA;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:600}
 .dn button.on{background:#F2F5F3;color:var(--ink)}
@@ -911,44 +932,66 @@ function keyRoute(k){const m=k.match(/^[tmr]-t(\d{4})-(\d)$/);if(m)return `#f${m
 /* ---------- landing ---------- */
 let LF='all';
 function landStyles(){let L=[];D.sizes.forEach(z=>z.styles.forEach(t=>L.push({z,t})));if(LF!=='all')L=L.filter(o=>o.z.s===LF);
-  return L.map(({z,t})=>`<a class="lst" href="#f${z.s}-s${t.n}"><img loading="lazy" src="${im(t.hero)}" alt="${esc(t.name)}"><span class="bd ${t.exist?'ex':''}">${t.exist?'Existing':'New theme'}</span><div class="ov"><small>${z.lab} sq ft · Type-${t.n} · ${t.facing}</small><b>${esc(t.name)}</b><div class="pp">${t.pal.map(p=>`<i style="background:${p[1]}"></i>`).join('')}</div></div></a>`).join('')}
+  return L.map(({z,t},i)=>`<a class="lst rv" style="transition-delay:${(i%4)*.07}s" href="#f${z.s}-s${t.n}"><img loading="lazy" src="${im(t.hero)}" alt="${esc(t.name)}"><span class="bd ${t.exist?'ex':''}">${t.exist?'Existing':'New theme'}</span><div class="ov"><small>${z.lab} sq ft · Type-${t.n} · ${t.facing}</small><b>${esc(t.name)}</b><div class="pp">${t.pal.map(p=>`<i style="background:${p[1]}"></i>`).join('')}</div></div></a>`).join('')}
 function vLanding(){
   const all=progress();
-  return `<section class="lhero" id="lhero"><img class="day" src="${im('hero/day')}" alt="BREEZE in the Courtyard, day view"><img class="night" src="${im('hero/night')}" alt="BREEZE in the Courtyard, night view"><div class="shade"></div>
+  return `<div class="lscroll" id="lscroll"><section class="lhero" id="lhero"><div class="layer" id="hlayer"><img class="day" src="${im('hero/day')}" alt="BREEZE in the Courtyard, day view"><img class="night" id="hnight" src="${im('hero/night')}" alt="BREEZE in the Courtyard, night view"></div><div class="stars" id="hstars"></div><div class="glow" id="hglow"></div><div class="shade" id="hshade"></div>
+   <div class="tclock"><span class="orb"><i id="horb"></i></span><span id="htime">10:30 AM</span></div>
+   <div class="shint" id="hhint">Scroll · day to night<i></i></div>
+   <div class="eve" id="heve"><div class="eyebrow">Dusk at BREEZE</div><h2>Every home <em>lights up.</em></h2><p>Sixteen interiors, each with its own glow behind the terraces. Keep scrolling to choose one.</p></div>
    <div class="dn"><button class="on" data-dn="day">Day</button><button data-dn="night">Night</button></div>
    <div class="wrap in"><div class="eyebrow">BREEZE in the Courtyard · Interior brief for 3D visualisation</div>
     <h1>16 types. <em>16 moods.</em></h1>
     <p>Three towers, 29 flats on every floor, four sizes. Each unit type gets its own interior theme, mood board, material palette and room-by-room brief.</p>
-    <div class="cta"><a class="cbtn pri" href="#styles-grid" data-jumpid="lstyles">Explore the 16 styles ↓</a><button class="cbtn" data-present="cover">▶ Present</button><a class="cbtn" href="#tracker">Render tracker</a></div></div></section>
-  <div class="wrap lstats"><div><b>3</b><span>Towers</span></div><div><b>29</b><span>Flats per floor</span></div><div><b>4</b><span>Flat sizes</span></div><div><b>16</b><span>Interior themes</span></div><div><b data-live="pct">${all.p}%</b><span><span data-live="done">${all.d}</span>/${all.n} renders approved</span></div></div>
+    <div class="cta"><a class="cbtn pri" href="#styles-grid" data-jumpid="lstyles">Explore the 16 styles ↓</a><button class="cbtn" data-present="cover">▶ Present</button><a class="cbtn" href="#tracker">Render tracker</a></div></div></section></div>
+  <div class="wrap lstats rv"><div><b>3</b><span>Towers</span></div><div><b>29</b><span>Flats per floor</span></div><div><b>4</b><span>Flat sizes</span></div><div><b>16</b><span>Interior themes</span></div><div><b data-live="pct">${all.p}%</b><span><span data-live="done">${all.d}</span>/${all.n} renders approved</span></div></div>
   <section class="lsec"><div class="wrap lintro">
-    <div><div class="eyebrow">The project</div><h2 style="margin:10px 0 18px">Calm white terraces,<br>warm lit interiors.</h2><p>Flowing white balcony bands and glass rails define BREEZE from the outside. Inside, every flat type gets a distinct mood — from Japandi calm to velvet jewel tones — so the 3D renders show buyers 16 genuinely different homes.</p><p style="font-size:15px;color:var(--muted);margin-top:16px">Drag the image to compare day and night.</p></div>
-    <div class="cmpw" id="cmpw"><img src="${im('hero/day')}" alt="Day"><img class="nt" src="${im('hero/night')}" alt="Night"><span class="lb" style="left:14px">Day</span><span class="lb" style="right:14px">Night</span><div class="hd"><i>⇆</i></div></div>
+    <div class="rv"><div class="eyebrow">The project</div><h2 style="margin:10px 0 18px">Calm white terraces,<br>warm lit interiors.</h2><p>Flowing white balcony bands and glass rails define BREEZE from the outside. Inside, every flat type gets a distinct mood — from Japandi calm to velvet jewel tones — so the 3D renders show buyers 16 genuinely different homes.</p><p style="font-size:15px;color:var(--muted);margin-top:16px">Drag the image to compare day and night.</p></div>
+    <div class="cmpw rv" id="cmpw"><img src="${im('hero/day')}" alt="Day"><img class="nt" src="${im('hero/night')}" alt="Night"><span class="lb" style="left:14px">Day</span><span class="lb" style="right:14px">Night</span><div class="hd"><i>⇆</i></div></div>
   </div></section>
   <section class="lsec"><div class="wrap"><div class="lhead"><div><div class="eyebrow">Choose a flat</div><h2>Four flat sizes</h2></div><a class="btn" href="#f1695" style="text-decoration:none">Start with 1,695 sq ft →</a></div>
-   <div class="lsizes">${D.sizes.map(z=>{const p=progress(t=>t.s===z.s);return `<a class="lsize" href="#f${z.s}"><div class="pl"><img loading="lazy" src="${im(z.styles[0].pimg)}" alt="${z.lab} sq ft plan"></div><div class="tx"><div class="n">${z.lab}<small>sq ft</small></div><div class="ts">${z.styles.length} unit types · ${X.wings.filter(w=>w.s===z.s).length} flats per floor<br>${z.styles.map(t=>esc(t.name)).join(' · ')}</div><div class="prog" style="margin-top:6px"><i style="width:${p.p}%"></i></div><div class="ts">${p.d}/${p.n} renders approved</div></div></a>`}).join('')}</div></div></section>
+   <div class="lsizes">${D.sizes.map((z,zi)=>{const p=progress(t=>t.s===z.s);return `<a class="lsize rv" style="transition-delay:${zi*.08}s" href="#f${z.s}"><div class="pl"><img loading="lazy" src="${im(z.styles[0].pimg)}" alt="${z.lab} sq ft plan"></div><div class="tx"><div class="n">${z.lab}<small>sq ft</small></div><div class="ts">${z.styles.length} unit types · ${X.wings.filter(w=>w.s===z.s).length} flats per floor<br>${z.styles.map(t=>esc(t.name)).join(' · ')}</div><div class="prog" style="margin-top:6px"><i style="width:${p.p}%"></i></div><div class="ts">${p.d}/${p.n} renders approved</div></div></a>`}).join('')}</div></div></section>
   <section class="lsec" id="lstyles"><div class="wrap"><div class="lhead"><div><div class="eyebrow">Interior themes</div><h2>16 unit types, 16 styles</h2></div>
    <div class="lfilter"><button data-lf="all" class="${LF==='all'?'on':''}">All</button>${D.sizes.map(z=>`<button data-lf="${z.s}" class="${LF===z.s?'on':''}">${z.lab}</button>`).join('')}</div></div>
    <div class="lstyles" id="lstylesg">${landStyles()}</div></div></section>
   <section class="lsec"><div class="wrap"><div class="lhead"><div><div class="eyebrow">Site · top view</div><h2>Find a flat on the site</h2></div></div>${mapHTML()}</div></section>
   <section class="lsec" style="border-bottom:none"><div class="wrap">
-   <div class="steps" style="margin-bottom:56px">
+   <div class="steps rv" style="margin-bottom:56px">
     <div class="step"><b>01</b><h3>Pick a type</h3><p>Open a flat size, then the unit type you are rendering — each has its own theme.</p></div>
     <div class="step"><b>02</b><h3>Model to the brief</h3><p>Mood board, materials, lighting and a reference photo for every room are on the type page.</p></div>
     <div class="step"><b>03</b><h3>Update your status</h3><p>Set each room's status as you work. Everyone sees it live in the Tracker.</p></div></div>
-   <div class="lcta"><div><div class="eyebrow" style="color:var(--gold)">For the 3D team</div><h2>Ready to start?</h2><p>Walk through the full brief as a presentation, or check the rendering standards and file names first.</p></div>
+   <div class="lcta rv"><div><div class="eyebrow" style="color:var(--gold)">For the 3D team</div><h2>Ready to start?</h2><p>Walk through the full brief as a presentation, or check the rendering standards and file names first.</p></div>
     <div class="cta"><button class="cbtn pri" data-present="cover" style="justify-content:center">▶ Present the full brief</button><a class="cbtn" href="#standards" style="justify-content:center">Rendering standards</a><a class="cbtn" href="#tracker" style="justify-content:center">Open the render tracker</a></div></div>
   </div></section>`;
 }
+const sm=(a,b,x)=>{x=Math.max(0,Math.min(1,(x-a)/(b-a)));return x*x*(3-2*x)};
+function heroTick(){
+  const w=$('#lscroll');if(!w)return;
+  const r=w.getBoundingClientRect();const tot=w.offsetHeight-(innerHeight-64);const p=Math.max(0,Math.min(1,(64-r.top)/tot));
+  const n=sm(.12,.72,p);
+  $('#hnight').style.opacity=n;
+  $('#hlayer').style.transform=`translateY(${p*-2}%) scale(${1.06-p*.06})`;
+  $('#hglow').style.opacity=sm(.45,.9,p);$('#hstars').style.opacity=sm(.55,.95,p)*.8;
+  const inn=$('#lhero .in');inn.style.opacity=1-sm(.02,.3,p);inn.style.transform=`translateY(${-p*120}px)`;
+  const ev=$('#heve');ev.style.opacity=sm(.6,.85,p)*(1-sm(.96,1,p)*.0);ev.style.transform=`translateY(${(1-sm(.6,.85,p))*30}px)`;
+  $('#hhint').style.opacity=1-sm(0,.08,p);
+  const min=10.5*60+Math.round(n*9*60);const hh=Math.floor(min/60),mm=min%60;$('#htime').textContent=`${((hh+11)%12)+1}:${String(mm-mm%5).padStart(2,'0')} ${hh>=12?'PM':'AM'}`;
+  $('#horb').style.transform=`translateX(${(1-n)*100}%)`;
+  document.querySelectorAll('[data-dn]').forEach(b=>b.classList.toggle('on',(b.dataset.dn==='night')===(n>.5)));
+}
+let heroRaf=0;window.addEventListener('scroll',()=>{if(!heroRaf)heroRaf=requestAnimationFrame(()=>{heroRaf=0;heroTick()})},{passive:true});window.addEventListener('resize',heroTick);
 function initLanding(){
   const h=$('#lhero');if(!h)return;
+  heroTick();
+  const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});
+  document.querySelectorAll('.rv').forEach(el=>io.observe(el));
   const c=$('#cmpw');if(c){const nt=c.querySelector('.nt'),hd=c.querySelector('.hd');let drag=false;
     const set=x=>{const r=c.getBoundingClientRect();const p=Math.max(0,Math.min(100,(x-r.left)/r.width*100));nt.style.clipPath=`inset(0 0 0 ${p}%)`;hd.style.left=p+'%'};
     c.addEventListener('pointerdown',e=>{drag=true;c.setPointerCapture(e.pointerId);set(e.clientX)});c.addEventListener('pointermove',e=>{if(drag)set(e.clientX)});c.addEventListener('pointerup',()=>drag=false)}
 }
 document.addEventListener('click',e=>{
-  const d=e.target.closest('[data-dn]');if(d){$('#lhero').classList.toggle('isnight',d.dataset.dn==='night');document.querySelectorAll('[data-dn]').forEach(b=>b.classList.toggle('on',b===d));return}
-  const f=e.target.closest('[data-lf]');if(f){LF=f.dataset.lf;document.querySelectorAll('[data-lf]').forEach(b=>b.classList.toggle('on',b===f));$('#lstylesg').innerHTML=landStyles();return}
+  const d=e.target.closest('[data-dn]');if(d){const w=$('#lscroll');const tot=w.offsetHeight-(innerHeight-64);const top=w.getBoundingClientRect().top+scrollY-64;window.scrollTo({top:top+(d.dataset.dn==='night'?tot*.8:0),behavior:'smooth'});return}
+  const f=e.target.closest('[data-lf]');if(f){LF=f.dataset.lf;document.querySelectorAll('[data-lf]').forEach(b=>b.classList.toggle('on',b===f));$('#lstylesg').innerHTML=landStyles();document.querySelectorAll('#lstylesg .rv').forEach(x=>x.classList.add('in'));return}
   const j=e.target.closest('[data-jumpid]');if(j){e.preventDefault();const t=document.getElementById(j.dataset.jumpid);if(t)window.scrollTo({top:t.getBoundingClientRect().top+scrollY-64,behavior:'smooth'})}
 });
 
