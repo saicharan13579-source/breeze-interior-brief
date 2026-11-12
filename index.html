@@ -943,32 +943,17 @@ function vLanding(){
   const all=progress();
   return `<div class="lscroll" id="lscroll"><section class="lhero" id="lhero"><div class="layer" id="hlayer"><img class="day" src="${im('hero/day')}" alt="BREEZE in the Courtyard, day view"><img class="night" id="hnight" src="${im('hero/night')}" alt="BREEZE in the Courtyard, night view"><div class="clouds" id="hclouds"><div class="cl c1"></div><div class="cl c2"></div></div></div><div class="stars" id="hstars"></div><div class="glow" id="hglow"></div><div class="shade" id="hshade"></div>
    <div class="tclock"><span class="orb"><i id="horb"></i></span><span id="htime">10:30 AM</span></div>
-   <div class="shint" id="hhint">Scroll · day to night<i></i></div>
-   <div class="eve" id="heve"><div class="eyebrow">Dusk at BREEZE</div><h2>Every home <em>lights up.</em></h2><p>Sixteen interiors, each with its own glow behind the terraces. Keep scrolling to choose one.</p></div>
-   <div class="dn"><button class="on" data-dn="day">Day</button><button data-dn="night">Night</button></div>
-   <div class="wrap in"><div class="eyebrow">BREEZE in the Courtyard · Interior brief for 3D visualisation</div>
-    <h1>16 types. <em>16 moods.</em></h1>
-    <p>Three towers, 29 flats on every floor, four sizes. Each unit type gets its own interior theme, mood board, material palette and room-by-room brief.</p>
-    <div class="cta"><a class="cbtn pri" href="#styles-grid" data-jumpid="lstyles">Explore the 16 styles ↓</a><button class="cbtn" data-present="cover">▶ Present</button><a class="cbtn" href="#tracker">Render tracker</a></div></div></section></div>
+   <div class="shint" id="hhint"><i></i></div><div class="dn"><button class="on" data-dn="day">Day</button><button data-dn="night">Night</button></div>
+</section></div>
   <div class="wrap lstats rv"><div><b>3</b><span>Towers</span></div><div><b>29</b><span>Flats per floor</span></div><div><b>4</b><span>Flat sizes</span></div><div><b>16</b><span>Interior themes</span></div><div><b data-live="pct">${all.p}%</b><span><span data-live="done">${all.d}</span>/${all.n} renders approved</span></div></div>
-  <section class="lsec"><div class="wrap lintro">
-    <div class="rv"><div class="eyebrow">The project</div><h2 style="margin:10px 0 18px">Calm white terraces,<br>warm lit interiors.</h2><p>Flowing white balcony bands and glass rails define BREEZE from the outside. Inside, every flat type gets a distinct mood — from Japandi calm to velvet jewel tones — so the 3D renders show buyers 16 genuinely different homes.</p><p style="font-size:15px;color:var(--muted);margin-top:16px">Drag the image to compare day and night.</p></div>
-    <div class="cmpw rv" id="cmpw"><img src="${im('hero/day')}" alt="Day"><img class="nt" src="${im('hero/night')}" alt="Night"><span class="lb" style="left:14px">Day</span><span class="lb" style="right:14px">Night</span><div class="hd"><i>⇆</i></div></div>
-  </div></section>
+  <section class="lsec"><div class="wrap"><div class="cmpw rv" id="cmpw" style="aspect-ratio:2.29/1"><img src="${im('hero/day')}" alt="Day"><img class="nt" src="${im('hero/night')}" alt="Night"><span class="lb" style="left:14px">Day</span><span class="lb" style="right:14px">Night</span><div class="hd"><i>⇆</i></div></div></div></section>
   <section class="lsec"><div class="wrap"><div class="lhead"><div><div class="eyebrow">Choose a flat</div><h2>Four flat sizes</h2></div><a class="btn" href="#f1695" style="text-decoration:none">Start with 1,695 sq ft →</a></div>
    <div class="lsizes">${D.sizes.map((z,zi)=>{const p=progress(t=>t.s===z.s);return `<a class="lsize rv" style="transition-delay:${zi*.08}s" href="#f${z.s}"><div class="pl"><img loading="lazy" src="${im(z.styles[0].pimg)}" alt="${z.lab} sq ft plan"></div><div class="tx"><div class="n">${z.lab}<small>sq ft</small></div><div class="ts">${z.styles.length} unit types · ${X.wings.filter(w=>w.s===z.s).length} flats per floor<br>${z.styles.map(t=>esc(t.name)).join(' · ')}</div><div class="prog" style="margin-top:6px"><i style="width:${p.p}%"></i></div><div class="ts">${p.d}/${p.n} renders approved</div></div></a>`}).join('')}</div></div></section>
   <section class="lsec" id="lstyles"><div class="wrap"><div class="lhead"><div><div class="eyebrow">Interior themes</div><h2>16 unit types, 16 styles</h2></div>
    <div class="lfilter"><button data-lf="all" class="${LF==='all'?'on':''}">All</button>${D.sizes.map(z=>`<button data-lf="${z.s}" class="${LF===z.s?'on':''}">${z.lab}</button>`).join('')}</div></div>
    <div class="lstyles" id="lstylesg">${landStyles()}</div></div></section>
   <section class="lsec"><div class="wrap"><div class="lhead"><div><div class="eyebrow">Site · top view</div><h2>Find a flat on the site</h2></div></div>${mapHTML()}</div></section>
-  <section class="lsec" style="border-bottom:none"><div class="wrap">
-   <div class="steps rv" style="margin-bottom:56px">
-    <div class="step"><b>01</b><h3>Pick a type</h3><p>Open a flat size, then the unit type you are rendering — each has its own theme.</p></div>
-    <div class="step"><b>02</b><h3>Model to the brief</h3><p>Mood board, materials, lighting and a reference photo for every room are on the type page.</p></div>
-    <div class="step"><b>03</b><h3>Update your status</h3><p>Set each room's status as you work. Everyone sees it live in the Tracker.</p></div></div>
-   <div class="lcta rv"><div><div class="eyebrow" style="color:var(--gold)">For the 3D team</div><h2>Ready to start?</h2><p>Walk through the full brief as a presentation, or check the rendering standards and file names first.</p></div>
-    <div class="cta"><button class="cbtn pri" data-present="cover" style="justify-content:center">▶ Present the full brief</button><a class="cbtn" href="#standards" style="justify-content:center">Rendering standards</a><a class="cbtn" href="#tracker" style="justify-content:center">Open the render tracker</a></div></div>
-  </div></section>`;
+`;
 }
 const sm=(a,b,x)=>{x=Math.max(0,Math.min(1,(x-a)/(b-a)));return x*x*(3-2*x)};
 function heroTick(){
@@ -978,8 +963,7 @@ function heroTick(){
   $('#hnight').style.opacity=n;
   $('#hlayer').style.transform=`translateY(${p*-2}%) scale(${1.06-p*.06})`;
   $('#hglow').style.opacity=sm(.45,.9,p);const cl=$('#hclouds');cl.style.opacity=1-n*.55;cl.style.filter=`brightness(${1-n*.6}) saturate(${1-n*.4})`;cl.style.transform='';$('#hstars').style.opacity=sm(.55,.95,p)*.8;
-  const inn=$('#lhero .in');inn.style.opacity=1-sm(.02,.3,p);inn.style.transform=`translateY(${-p*120}px)`;
-  const ev=$('#heve');ev.style.opacity=sm(.6,.85,p)*(1-sm(.96,1,p)*.0);ev.style.transform=`translateY(${(1-sm(.6,.85,p))*30}px)`;
+  
   $('#hhint').style.opacity=1-sm(0,.08,p);
   const min=10.5*60+Math.round(n*9*60);const hh=Math.floor(min/60),mm=min%60;$('#htime').textContent=`${((hh+11)%12)+1}:${String(mm-mm%5).padStart(2,'0')} ${hh>=12?'PM':'AM'}`;
   $('#horb').style.transform=`translateX(${(1-n)*100}%)`;
