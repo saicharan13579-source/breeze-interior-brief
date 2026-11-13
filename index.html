@@ -366,10 +366,18 @@ footer{padding:40px 0;color:var(--muted);font-size:13px;border-top:1px solid var
 @media (max-width:620px){.lscroll{height:200vh}.tclock{left:16px;bottom:16px}.shint{display:none}}
 .clouds{position:absolute;inset:0;pointer-events:none;-webkit-mask-image:url(img/hero/skymask.png);mask-image:url(img/hero/skymask.png);-webkit-mask-size:cover;mask-size:cover;-webkit-mask-position:center 78%;mask-position:center 78%;-webkit-mask-repeat:no-repeat;mask-repeat:no-repeat;will-change:opacity,filter}
 .cl{position:absolute;left:0;top:0;width:200%;height:100%;background-repeat:repeat-x;background-size:50% auto;background-position:0 0;will-change:transform}
-.cl.c1{background-image:url(img/hero/clouds1.png);animation:drift 160s linear infinite;opacity:.95}
-.cl.c2{background-image:url(img/hero/clouds2.png);top:-3%;animation:drift 95s linear infinite;opacity:.85}
+.cl.c1{background-image:url(img/hero/clouds1.png);width:360%;top:-8%;animation:drift 260s linear infinite;opacity:.95}
+.cl.c2{background-image:url(img/hero/clouds2.png);width:260%;top:8%;animation:drift 170s linear infinite;opacity:.85}
+.cl.c3{background-image:url(img/hero/clouds3.png);width:400%;top:-10%;animation:drift 480s linear infinite;opacity:.9}
+.lhero .layer img.lt{opacity:0;mix-blend-mode:screen}
+.sunglow{position:absolute;inset:0;pointer-events:none;background:radial-gradient(40% 45% at 82% 6%,rgba(255,246,220,.55),rgba(255,240,210,.18) 40%,rgba(255,240,210,0) 70%);mix-blend-mode:screen}
+.dusk{position:absolute;inset:0;pointer-events:none;opacity:0;background:linear-gradient(180deg,rgba(70,60,140,.55) 0%,rgba(230,120,90,.55) 34%,rgba(255,170,100,.45) 48%,rgba(255,190,130,0) 70%);mix-blend-mode:soft-light}
+.birds{position:absolute;left:0;top:14%;width:180px;height:54px;fill:none;stroke:#2a3440;stroke-width:1.1;stroke-linecap:round;pointer-events:none;animation:fly 38s linear infinite;opacity:.75}
+.birds path{animation:flap .9s ease-in-out infinite;transform-origin:center;transform-box:fill-box}
+@keyframes fly{0%{transform:translate(-20vw,30px)}50%{transform:translate(55vw,-10px)}100%{transform:translate(120vw,20px)}}
+@keyframes flap{0%,100%{transform:scaleY(1)}50%{transform:scaleY(-.55)}}
 @keyframes drift{from{transform:translateX(0)}to{transform:translateX(-50%)}}
-@media (prefers-reduced-motion:reduce){.cl{animation:none}}
+@media (prefers-reduced-motion:reduce){.cl,.birds,.birds path{animation:none}.birds{display:none}}
 .dn{position:absolute;right:32px;bottom:28px;z-index:3;display:flex;background:rgba(15,28,23,.45);backdrop-filter:blur(8px);border-radius:999px;padding:4px;border:1px solid rgba(255,255,255,.25)}
 .dn button{border:none;background:none;color:#E6EEEA;padding:7px 16px;border-radius:999px;font-size:13px;font-weight:600}
 .dn button.on{background:#F2F5F3;color:var(--ink)}
@@ -961,7 +969,7 @@ function landStyles(){let L=[];D.sizes.forEach(z=>z.styles.forEach(t=>L.push({z,
   return L.map(({z,t},i)=>`<a class="lst rv" style="transition-delay:${(i%4)*.07}s" href="#f${z.s}-s${t.n}"><img loading="lazy" src="${im(t.hero)}" alt="${esc(t.name)}"><span class="bd ${t.exist?'ex':''}">${t.exist?'Existing':'New theme'}</span><div class="ov"><small>${z.lab} sq ft · Type-${t.n} · ${t.facing}</small><b>${esc(t.name)}</b><div class="pp">${t.pal.map(p=>`<i style="background:${p[1]}"></i>`).join('')}</div></div></a>`).join('')}
 function vLanding(){
   const all=progress();
-  return `<div class="lscroll" id="lscroll"><section class="lhero" id="lhero"><div class="layer" id="hlayer"><img class="day" src="${im('hero/day')}" alt="BREEZE in the Courtyard, day view"><img class="night" id="hnight" src="${im('hero/night')}" alt="BREEZE in the Courtyard, night view"><div class="clouds" id="hclouds"><div class="cl c1"></div><div class="cl c2"></div></div></div><div class="stars" id="hstars"></div><div class="glow" id="hglow"></div><div class="shade" id="hshade"></div>
+  return `<div class="lscroll" id="lscroll"><section class="lhero" id="lhero"><div class="layer" id="hlayer"><img class="day" src="${im('hero/day')}" alt="BREEZE in the Courtyard, day view"><img class="night" id="hnight" src="${im('hero/night_dim')}" alt="BREEZE in the Courtyard, night view">${[0,1,2,3,4].map(k=>`<img class="lt" id="hl${k}" src="${im('hero/lights'+k)}" alt="">`).join('')}<div class="sunglow" id="hsun"></div><div class="clouds" id="hclouds"><div class="cl c3"></div><div class="cl c1"></div><div class="cl c2"></div></div><div class="dusk" id="hdusk"></div><svg class="birds" id="hbirds" viewBox="0 0 200 60">${[[10,30,1],[24,22,.8],[30,36,.9],[44,28,.7],[52,40,.85],[66,32,.75]].map(([x,y,s],i)=>`<path style="animation-delay:-${i*.17}s" d="M${x-4*s} ${y} q${2*s} ${-2.6*s} ${4*s} 0 q${2*s} ${-2.6*s} ${4*s} 0" />`).join('')}</svg></div><div class="stars" id="hstars"></div><div class="glow" id="hglow"></div><div class="shade" id="hshade"></div>
    <div class="tclock"><span class="orb"><i id="horb"></i></span><span id="htime">10:30 AM</span></div>
    <div class="shint" id="hhint"><i></i></div><div class="dn"><button class="on" data-dn="day">Day</button><button data-dn="night">Night</button></div>
 </section></div>
@@ -982,7 +990,9 @@ function heroTick(){
   const n=sm(.12,.72,p);
   $('#hnight').style.opacity=n;
   $('#hlayer').style.transform=`translateY(${p*-2}%) scale(${1.06-p*.06})`;
-  $('#hglow').style.opacity=sm(.45,.9,p);const cl=$('#hclouds');cl.style.opacity=1-n*.55;cl.style.filter=`brightness(${1-n*.6}) saturate(${1-n*.4})`;cl.style.transform='';$('#hstars').style.opacity=sm(.55,.95,p)*.8;
+  $('#hglow').style.opacity=sm(.45,.9,p);const dusk=Math.max(0,1-Math.abs(p-.42)/.26);const cl=$('#hclouds');cl.style.opacity=1-n*.7;cl.style.filter=`brightness(${1-n*.55+dusk*.05}) sepia(${dusk*.25}) saturate(${1+dusk*.6-n*.5}) hue-rotate(${-dusk*20+n*10}deg)`;cl.style.transform=`translateY(${-p*3}%)`;
+  $('#hdusk').style.opacity=dusk*.95;$('#hsun').style.opacity=1-sm(.05,.45,p);$('#hbirds').style.opacity=(1-sm(.15,.45,p))*.75;
+  for(let k=0;k<5;k++){$('#hl'+k).style.opacity=sm(.5+k*.08,.62+k*.08,p)}$('#hstars').style.opacity=sm(.55,.95,p)*.8;
   
   $('#hhint').style.opacity=1-sm(0,.08,p);
   const min=10.5*60+Math.round(n*9*60);const hh=Math.floor(min/60),mm=min%60;$('#htime').textContent=`${((hh+11)%12)+1}:${String(mm-mm%5).padStart(2,'0')} ${hh>=12?'PM':'AM'}`;
