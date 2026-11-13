@@ -969,7 +969,7 @@ function landStyles(){let L=[];D.sizes.forEach(z=>z.styles.forEach(t=>L.push({z,
   return L.map(({z,t},i)=>`<a class="lst rv" style="transition-delay:${(i%4)*.07}s" href="#f${z.s}-s${t.n}"><img loading="lazy" src="${im(t.hero)}" alt="${esc(t.name)}"><span class="bd ${t.exist?'ex':''}">${t.exist?'Existing':'New theme'}</span><div class="ov"><small>${z.lab} sq ft · Type-${t.n} · ${t.facing}</small><b>${esc(t.name)}</b><div class="pp">${t.pal.map(p=>`<i style="background:${p[1]}"></i>`).join('')}</div></div></a>`).join('')}
 function vLanding(){
   const all=progress();
-  return `<div class="lscroll" id="lscroll"><section class="lhero" id="lhero"><div class="layer" id="hlayer"><img class="day" src="${im('hero/day')}" alt="BREEZE in the Courtyard, day view"><img class="night" id="hnight" src="${im('hero/night_dim')}" alt="BREEZE in the Courtyard, night view">${[0,1,2,3,4].map(k=>`<img class="lt" id="hl${k}" src="${im('hero/lights'+k)}" alt="">`).join('')}<div class="sunglow" id="hsun"></div><div class="clouds" id="hclouds"><div class="cl c3"></div><div class="cl c1"></div><div class="cl c2"></div></div><div class="dusk" id="hdusk"></div><svg class="birds" id="hbirds" viewBox="0 0 200 60">${[[10,30,1],[24,22,.8],[30,36,.9],[44,28,.7],[52,40,.85],[66,32,.75]].map(([x,y,s],i)=>`<path style="animation-delay:-${i*.17}s" d="M${x-4*s} ${y} q${2*s} ${-2.6*s} ${4*s} 0 q${2*s} ${-2.6*s} ${4*s} 0" />`).join('')}</svg></div><div class="stars" id="hstars"></div><div class="glow" id="hglow"></div><div class="shade" id="hshade"></div>
+  return `<div class="lscroll" id="lscroll"><section class="lhero" id="lhero"><div class="layer" id="hlayer"><img class="day" src="${im('hero/day')}" alt="BREEZE in the Courtyard, day view"><img class="night" id="hnight" src="${im('hero/night_dim')}" alt="BREEZE in the Courtyard, night view">${[0,1,2,3,4].map(k=>`<img class="lt" id="hl${k}" src="${im('hero/lights'+k)}" alt="">`).join('')}<div class="sunglow" id="hsun"></div><div class="clouds" id="hclouds"><canvas id="hcv" style="position:absolute;inset:0;width:100%;height:100%"></canvas><div class="cl c3"></div><div class="cl c1"></div><div class="cl c2"></div></div><div class="dusk" id="hdusk"></div><svg class="birds" id="hbirds" viewBox="0 0 200 60">${[[10,30,1],[24,22,.8],[30,36,.9],[44,28,.7],[52,40,.85],[66,32,.75]].map(([x,y,s],i)=>`<path style="animation-delay:-${i*.17}s" d="M${x-4*s} ${y} q${2*s} ${-2.6*s} ${4*s} 0 q${2*s} ${-2.6*s} ${4*s} 0" />`).join('')}</svg></div><div class="stars" id="hstars"></div><div class="glow" id="hglow"></div><div class="shade" id="hshade"></div>
    <div class="tclock"><span class="orb"><i id="horb"></i></span><span id="htime">10:30 AM</span></div>
    <div class="shint" id="hhint"><i></i></div><div class="dn"><button class="on" data-dn="day">Day</button><button data-dn="night">Night</button></div>
 </section></div>
@@ -983,6 +983,63 @@ function vLanding(){
   <section class="lsec"><div class="wrap"><div class="lhead"><div><div class="eyebrow">Site · top view</div><h2>Find a flat on the site</h2></div></div>${mapHTML()}</div></section>
 `;
 }
+
+/* ---------- WebGL sky clouds (same technique as the KONAK clubhouse intro) ---------- */
+const SKYGL={ok:false};
+function skyInit(){
+  const cv=$('#hcv');if(!cv)return;const gl=cv.getContext('webgl',{premultipliedAlpha:true,alpha:true,antialias:false});
+  SKYGL.ok=false;SKYGL.cv=cv;SKYGL.gl=gl;if(!gl)return;
+  const vs='attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}';
+  const fs=`#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform vec2 R;uniform float T,COV,AL,HZ;uniform vec3 LC,SC,HC;
+float h(vec2 p){p=mod(p,289.);vec3 p3=fract(vec3(p.xyx)*.1031);p3+=dot(p3,p3.yzx+33.33);return fract((p3.x+p3.y)*p3.z);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1,0)),f.x),mix(h(i+vec2(0,1)),h(i+1.),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;mat2 m=mat2(1.6,1.2,-1.2,1.6);for(int i=0;i<6;i++){v+=a*n(p);p=m*p;a*=.5;}return v;}
+void main(){vec2 uv=gl_FragCoord.xy/R;float asp=R.x/R.y;vec3 col=vec3(0.);float A=0.;
+ vec2 sd=normalize(vec2(-.7,.5));
+ for(int i=1;i>=0;i--){float fi=float(i);
+  float hy=max(uv.y-HZ,.004);
+  float pl=mix(.55,1.6,fi);            // cloud plane height: low cumulus / high cirrus
+  vec2 q=vec2((uv.x-.5)*asp*pl/hy, pl/hy);
+  q*=mix(1.1,.55,fi);
+  q.x*=mix(1.,.45,fi);                  // stretch high layer into streaks
+  q+=vec2(T*mix(.035,.05,fi)+fi*7.3, T*.004+fi*3.1);
+  vec2 w=vec2(fbm(q*.7+3.1),fbm(q*.7-1.7));float d=fbm(q+w*mix(.9,1.6,fi));
+  float cov=COV+fi*.1;
+  float a=smoothstep(cov,cov+mix(.24,.32,fi),d)*mix(1.,.55,fi);
+  float d2=fbm(q+w*mix(.9,1.6,fi)+sd*.07);float lit=clamp((d-d2)*6.+.55,0.,1.);
+  float thick=smoothstep(cov,cov+.5,d);
+  vec3 c=mix(SC,LC,lit*(1.-thick*.35));
+  float far=1.-smoothstep(0.,.45,hy);    // aerial perspective near the horizon
+  c=mix(c,HC,far*.65);a*=1.-far*.55;a*=smoothstep(.0,.08,hy);
+  col=c*a+col*(1.-a);A=a+A*(1.-a);}
+ gl_FragColor=vec4(col*AL,A*AL);}`;
+  const sh=(ty,src)=>{const s=gl.createShader(ty);gl.shaderSource(s,src);gl.compileShader(s);return gl.getShaderParameter(s,gl.COMPILE_STATUS)?s:null};
+  const v=sh(gl.VERTEX_SHADER,vs),f=sh(gl.FRAGMENT_SHADER,fs);if(!v||!f)return;
+  const pr=gl.createProgram();gl.attachShader(pr,v);gl.attachShader(pr,f);gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))return;
+  gl.useProgram(pr);const b=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,b);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+  const loc=gl.getAttribLocation(pr,'a');gl.enableVertexAttribArray(loc);gl.vertexAttribPointer(loc,2,gl.FLOAT,false,0,0);gl.clearColor(0,0,0,0);
+  SKYGL.U={};['R','T','COV','AL','HZ','LC','SC','HC'].forEach(k=>SKYGL.U[k]=gl.getUniformLocation(pr,k));
+  SKYGL.ok=true;document.querySelectorAll('#hclouds .cl').forEach(e=>e.style.display='none');
+  skySize();
+}
+function skySize(){if(!SKYGL.ok)return;const cv=SKYGL.cv,W=cv.clientWidth,H=cv.clientHeight,k=Math.min(1,960/Math.max(W,1));cv.width=Math.max(2,Math.round(W*k));cv.height=Math.max(2,Math.round(H*k));SKYGL.gl.viewport(0,0,cv.width,cv.height)}
+const mixc=(a,b,t)=>a.map((v,i)=>v+(b[i]-v)*t);
+SKYGL.n=0;SKYGL.dusk=0;
+function skyDraw(ts){if(!SKYGL.ok||!$('#hcv'))return;const gl=SKYGL.gl,U=SKYGL.U,n=SKYGL.n,dk=SKYGL.dusk;
+  let LC=mixc([1,1,.99],[1,.74,.55],dk),SC=mixc([.7,.76,.86],[.46,.36,.52],dk),HC=mixc([.78,.85,.93],[.95,.66,.55],dk);
+  LC=mixc(LC,[.30,.34,.46],n);SC=mixc(SC,[.08,.11,.19],n);HC=mixc(HC,[.16,.2,.32],n);
+  gl.clear(gl.COLOR_BUFFER_BIT);gl.uniform2f(U.R,SKYGL.cv.width,SKYGL.cv.height);gl.uniform1f(U.T,(ts||0)/1000);
+  gl.uniform1f(U.COV,.55-dk*.03+n*.02);gl.uniform1f(U.AL,1-n*.45);gl.uniform1f(U.HZ,.30);
+  gl.uniform3f(U.LC,...LC);gl.uniform3f(U.SC,...SC);gl.uniform3f(U.HC,...HC);gl.drawArrays(gl.TRIANGLES,0,3)}
+let skyRaf=0,skyVis=true;
+function skyLoop(ts){skyRaf=0;if(!$('#hcv'))return;skyDraw(ts);if(skyVis&&!matchMedia('(prefers-reduced-motion: reduce)').matches)skyRaf=requestAnimationFrame(skyLoop)}
+function skyStart(){skyInit();if(!SKYGL.ok)return;const io=new IntersectionObserver(es=>{skyVis=es[0].isIntersecting;if(skyVis&&!skyRaf)skyRaf=requestAnimationFrame(skyLoop)});io.observe($('#lhero'));if(!skyRaf)skyRaf=requestAnimationFrame(skyLoop)}
+window.addEventListener('resize',skySize);
 const sm=(a,b,x)=>{x=Math.max(0,Math.min(1,(x-a)/(b-a)));return x*x*(3-2*x)};
 function heroTick(){
   const w=$('#lscroll');if(!w)return;
@@ -990,7 +1047,7 @@ function heroTick(){
   const n=sm(.12,.72,p);
   $('#hnight').style.opacity=n;
   $('#hlayer').style.transform=`translateY(${p*-2}%) scale(${1.06-p*.06})`;
-  $('#hglow').style.opacity=sm(.45,.9,p);const dusk=Math.max(0,1-Math.abs(p-.42)/.26);const cl=$('#hclouds');cl.style.opacity=1-n*.7;cl.style.filter=`brightness(${1-n*.55+dusk*.05}) sepia(${dusk*.25}) saturate(${1+dusk*.6-n*.5}) hue-rotate(${-dusk*20+n*10}deg)`;cl.style.transform=`translateY(${-p*3}%)`;
+  $('#hglow').style.opacity=sm(.45,.9,p);const dusk=Math.max(0,1-Math.abs(p-.42)/.26);const cl=$('#hclouds');SKYGL.n=n;SKYGL.dusk=dusk;if(SKYGL.ok){cl.style.opacity=1;cl.style.filter='none';if(!skyRaf)skyDraw(performance.now())}else{cl.style.opacity=1-n*.7;cl.style.filter=`brightness(${1-n*.55+dusk*.05}) sepia(${dusk*.25}) saturate(${1+dusk*.6-n*.5}) hue-rotate(${-dusk*20+n*10}deg)`}cl.style.transform=`translateY(${-p*3}%)`;
   $('#hdusk').style.opacity=dusk*.95;$('#hsun').style.opacity=1-sm(.05,.45,p);$('#hbirds').style.opacity=(1-sm(.15,.45,p))*.75;
   for(let k=0;k<5;k++){$('#hl'+k).style.opacity=sm(.5+k*.08,.62+k*.08,p)}$('#hstars').style.opacity=sm(.55,.95,p)*.8;
   
@@ -1002,7 +1059,7 @@ function heroTick(){
 let heroRaf=0;window.addEventListener('scroll',()=>{if(!heroRaf)heroRaf=requestAnimationFrame(()=>{heroRaf=0;heroTick()})},{passive:true});window.addEventListener('resize',heroTick);
 function initLanding(){
   const h=$('#lhero');if(!h)return;
-  heroTick();
+  skyStart();heroTick();
   const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});
   document.querySelectorAll('.rv').forEach(el=>io.observe(el));
   const c=$('#cmpw');if(c){const nt=c.querySelector('.nt'),hd=c.querySelector('.hd');let drag=false;
